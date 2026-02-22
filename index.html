@@ -956,13 +956,14 @@
                 recognition = new SpeechRecognition();
             } else {
                 btnRecord.disabled = true;
-                btnRecord.title = 'Spracherkennung nicht unterstützt';
+                showFeedback('error', 'Nicht unterstützt', 'Dein Browser unterstützt keine Spracherkennung. Bitte Chrome oder Safari verwenden.');
                 return;
             }
 
             recognition.lang = 'en-GB';
             recognition.interimResults = false;
             recognition.maxAlternatives = 5;
+            recognition.continuous = false;
 
             recognition.onresult = (event) => {
                 const results = event.results[0];
@@ -979,7 +980,15 @@
             recognition.onerror = (event) => {
                 console.error('Recognition error:', event.error);
                 stopRecording();
-                showFeedback('error', 'Nicht erkannt', 'Bitte versuche es noch einmal.');
+                const messages = {
+                    'not-allowed':        'Mikrofon-Zugriff verweigert. Bitte in den Browser-Einstellungen erlauben.',
+                    'no-speech':          'Kein Ton erkannt. Bitte deutlich sprechen.',
+                    'network':            'Netzwerkfehler. Bitte Internetverbindung prüfen.',
+                    'audio-capture':      'Kein Mikrofon gefunden.',
+                    'service-not-allowed':'Spracherkennung nicht erlaubt. Seite über HTTPS aufrufen.'
+                };
+                const msg = messages[event.error] || 'Fehler: ' + event.error;
+                showFeedback('error', 'Aufnahme-Fehler', msg);
             };
 
             recognition.onend = () => {
