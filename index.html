@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Pronunciation Trainer</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: var(--text-light);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            color: var(--text-light);
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: var(--border);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            background: var(--card);
+            font-weight: 600;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .word-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .word-main {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .word-phonetic {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            font-family: 'Lucida Sans Unicode', sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .word-translation {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-record {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-record:hover {
+            background: #dc2626;
+        }
+
+        .btn-record.recording {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .feedback {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .feedback.partial {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .feedback.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .feedback-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .feedback-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .feedback-detail {
+            font-size: 0.9rem;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        /* Minimal Pairs */
+        .pair-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .pair-word {
+            flex: 1;
+            max-width: 200px;
+            padding: 30px 20px;
+            border: 3px solid var(--border);
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pair-word:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .pair-word.selected {
+            border-color: var(--primary);
+            background: #eef2ff;
+        }
+
+        .pair-word.correct {
+            border-color: var(--success);
+            background: #dcfce7;
+        }
+
+        .pair-word.wrong {
+            border-color: var(--error);
+            background: #fee2e2;
+        }
+
+        .pair-word-text {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .pair-word-phonetic {
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+
+        .listen-prompt {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .category-select {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            background: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-btn:hover,
+        .category-btn.active {
+            border-color: var(--primary);
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        .word-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .tip-box {
+            background: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 20px;
+        }
+
+        .tip-box h4 {
+            color: #0369a1;
+            margin-bottom: 5px;
+        }
+
+        .tip-box p {
+            color: #0c4a6e;
+            font-size: 0.95rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Settings */
+        .settings {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-item label {
+            color: var(--text-light);
+        }
+
+        .setting-item select {
+            padding: 8px 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .word-main {
+                font-size: 2rem;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .pair-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .pair-word {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>English Pronunciation Trainer</h1>
+            <p>Verbessere deine Aussprache durch aktives Sprechen</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="practice">Wörter üben</button>
+            <button class="tab-btn" data-tab="pairs">Minimalpaare</button>
+        </div>
+
+        <!-- Practice Tab -->
+        <div id="practice-tab" class="tab-content">
+            <div class="card">
+                <div class="settings">
+                    <div class="setting-item">
+                        <label>Kategorie:</label>
+                        <select id="category-select">
+                            <option value="difficult_sounds">Schwierige Laute</option>
+                            <option value="common_mistakes">Häufige Fehler</option>
+                            <option value="academic">Akademischer Wortschatz</option>
+                            <option value="everyday">Alltag</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Geschwindigkeit:</label>
+                        <select id="speed-select">
+                            <option value="0.8">Langsam</option>
+                            <option value="1" selected>Normal</option>
+                            <option value="1.2">Schnell</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="stat-current">1</div>
+                        <div class="stat-label">Wort</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="stat-total">10</div>
+                        <div class="stat-label">Gesamt</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="stat-correct">0</div>
+                        <div class="stat-label">Richtig</div>
+                    </div>
+                </div>
+
+                <div class="word-display">
+                    <div class="word-main" id="current-word">thought</div>
+                    <div class="word-phonetic" id="current-phonetic">/θɔːt/</div>
+                    <div class="word-translation" id="current-translation">Gedanke</div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" id="btn-listen">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                        </svg>
+                        Anhören
+                    </button>
+                    <button class="btn btn-record" id="btn-record">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                        </svg>
+                        <span id="record-text">Aufnehmen</span>
+                    </button>
+                </div>
+
+                <div class="feedback" id="feedback">
+                    <div class="feedback-icon" id="feedback-icon"></div>
+                    <div class="feedback-text" id="feedback-text"></div>
+                    <div class="feedback-detail" id="feedback-detail"></div>
+                </div>
+
+                <div class="tip-box" id="tip-box">
+                    <h4>Tipp</h4>
+                    <p id="tip-text">Das "th" /θ/ wird gebildet, indem du die Zungenspitze zwischen die Zähne legst und Luft ausströmen lässt.</p>
+                </div>
+
+                <div class="word-nav">
+                    <button class="btn btn-secondary" id="btn-prev">Zurück</button>
+                    <button class="btn btn-primary" id="btn-next">Nächstes Wort</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Minimal Pairs Tab -->
+        <div id="pairs-tab" class="tab-content hidden">
+            <div class="card">
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="pairs-current">1</div>
+                        <div class="stat-label">Paar</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="pairs-total">10</div>
+                        <div class="stat-label">Gesamt</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="pairs-score">0</div>
+                        <div class="stat-label">Punkte</div>
+                    </div>
+                </div>
+
+                <div class="listen-prompt" id="listen-prompt">
+                    Klicke auf "Anhören" und wähle das gehörte Wort
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" id="btn-play-pair">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                        </svg>
+                        Anhören
+                    </button>
+                </div>
+
+                <div class="pair-container" id="pair-container">
+                    <div class="pair-word" data-index="0">
+                        <div class="pair-word-text" id="pair-word-0">ship</div>
+                        <div class="pair-word-phonetic" id="pair-phonetic-0">/ʃɪp/</div>
+                    </div>
+                    <div class="pair-word" data-index="1">
+                        <div class="pair-word-text" id="pair-word-1">sheep</div>
+                        <div class="pair-word-phonetic" id="pair-phonetic-1">/ʃiːp/</div>
+                    </div>
+                </div>
+
+                <div class="feedback" id="pairs-feedback">
+                    <div class="feedback-icon" id="pairs-feedback-icon"></div>
+                    <div class="feedback-text" id="pairs-feedback-text"></div>
+                </div>
+
+                <div class="tip-box" id="pairs-tip-box">
+                    <h4>Unterschied</h4>
+                    <p id="pairs-tip-text">/ɪ/ ist kurz (ship), /iː/ ist lang (sheep). Achte auf die Länge des Vokals.</p>
+                </div>
+
+                <div class="word-nav">
+                    <button class="btn btn-secondary" id="btn-pairs-prev">Zurück</button>
+                    <button class="btn btn-primary" id="btn-pairs-next">Nächstes Paar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Word lists organized by category
+        const wordLists = {
+            difficult_sounds: [
+                { word: "thought", phonetic: "/θɔːt/", translation: "Gedanke", tip: "Das 'th' /θ/ wird gebildet, indem du die Zungenspitze zwischen die Zähne legst und Luft ausströmen lässt." },
+                { word: "through", phonetic: "/θruː/", translation: "durch", tip: "Kombiniere das stimmlose 'th' /θ/ mit 'r' - die Zunge bewegt sich von den Zähnen nach hinten." },
+                { word: "clothes", phonetic: "/kləʊðz/", translation: "Kleidung", tip: "Das 'th' hier ist stimmhaft /ð/ - die Stimmbänder vibrieren dabei." },
+                { word: "three", phonetic: "/θriː/", translation: "drei", tip: "Achte auf die Kombination /θr/ - erst Zunge zwischen Zähne, dann schnell zum 'r'." },
+                { word: "world", phonetic: "/wɜːld/", translation: "Welt", tip: "Der Vokal /ɜː/ wie in 'bird' - Lippen leicht gerundet, Zunge mittig." },
+                { word: "girl", phonetic: "/ɡɜːl/", translation: "Mädchen", tip: "Gleiches /ɜː/ wie in 'world'. Das 'r' wird im britischen Englisch oft nicht gesprochen." },
+                { word: "comfortable", phonetic: "/ˈkʌmftəbl/", translation: "bequem", tip: "Nur 3 Silben! 'COMF-ta-ble', nicht 'com-for-table'." },
+                { word: "vegetable", phonetic: "/ˈvedʒtəbl/", translation: "Gemüse", tip: "Nur 3 Silben: 'VEJ-ta-ble'. Das 'e' in der Mitte wird verschluckt." },
+                { word: "particularly", phonetic: "/pəˈtɪkjələli/", translation: "besonders", tip: "Betonung auf der zweiten Silbe: par-TIC-u-lar-ly." },
+                { word: "schedule", phonetic: "/ˈʃedjuːl/", translation: "Zeitplan", tip: "Britisch: /ˈʃedjuːl/, Amerikanisch: /ˈskedʒuːl/." },
+                { word: "thoroughly", phonetic: "/ˈθʌrəli/", translation: "gründlich", tip: "Beginnt mit 'th' /θ/ und hat nur 3 Silben: THUR-uh-lee." },
+                { word: "strength", phonetic: "/streŋθ/", translation: "Stärke", tip: "Endet mit /ŋθ/ - erst nasales 'ng', dann 'th'. Schwierige Kombination!" },
+                { word: "sixth", phonetic: "/sɪksθ/", translation: "sechste", tip: "Endet mit /ksθ/ - drei Konsonanten hintereinander. Langsam üben!" },
+                { word: "rural", phonetic: "/ˈrʊərəl/", translation: "ländlich", tip: "Zwei 'r'-Laute: RUR-al. Für Deutsche besonders schwierig." },
+                { word: "squirrel", phonetic: "/ˈskwɪrəl/", translation: "Eichhörnchen", tip: "Nur 2 Silben: SKWIR-rel. Das 'qu' wird /kw/ gesprochen." },
+                { word: "colonel", phonetic: "/ˈkɜːnl/", translation: "Oberst", tip: "Wird wie 'kernel' ausgesprochen! Das 'o' und 'l' sind stumm." },
+                { word: "chaos", phonetic: "/ˈkeɪɒs/", translation: "Chaos", tip: "Das 'ch' wird wie /k/ gesprochen: KAY-os." },
+                { word: "choir", phonetic: "/ˈkwaɪə/", translation: "Chor", tip: "Das 'ch' wird /kw/: KWIRE. Wie 'require' ohne 're'." },
+                { word: "southern", phonetic: "/ˈsʌðən/", translation: "südlich", tip: "Mit stimmhaftem 'th' /ð/: SUTH-ern. Anders als 'south'!" },
+                { word: "breathe", phonetic: "/briːð/", translation: "atmen", tip: "Stimmhaftes 'th' /ð/ am Ende. Anders als 'breath' /breθ/!" },
+                { word: "months", phonetic: "/mʌnθs/", translation: "Monate", tip: "Endet mit /nθs/ - sehr schwierige Konsonantenfolge." },
+                { word: "width", phonetic: "/wɪdθ/", translation: "Breite", tip: "Endet mit /dθ/ - erst /d/, dann Zunge zwischen die Zähne für /θ/." },
+                { word: "warmth", phonetic: "/wɔːmθ/", translation: "Wärme", tip: "Endet mit /mθ/ - Lippen schließen für /m/, dann 'th'." },
+                { word: "murderer", phonetic: "/ˈmɜːdərə/", translation: "Mörder", tip: "Drei /ɜː/-Laute: MUR-der-er. Im Britischen ohne 'r'-Laut." },
+                { word: "entrepreneur", phonetic: "/ˌɒntrəprəˈnɜː/", translation: "Unternehmer", tip: "Französischer Ursprung: on-truh-pruh-NUR. Betonung am Ende." }
+            ],
+            common_mistakes: [
+                { word: "recipe", phonetic: "/ˈresɪpi/", translation: "Rezept", tip: "Drei Silben mit Betonung am Anfang: RE-si-pi. Nicht wie 'receive'!" },
+                { word: "colleague", phonetic: "/ˈkɒliːɡ/", translation: "Kollege", tip: "Zwei Silben: COL-league. Das 'ea' wird wie langes 'ee' gesprochen." },
+                { word: "island", phonetic: "/ˈaɪlənd/", translation: "Insel", tip: "Das 's' ist stumm! Sprich: EYE-land." },
+                { word: "subtle", phonetic: "/ˈsʌtl/", translation: "subtil", tip: "Das 'b' ist stumm! Sprich: SUT-tle." },
+                { word: "cupboard", phonetic: "/ˈkʌbəd/", translation: "Schrank", tip: "Das 'p' ist stumm! Sprich: CUB-berd." },
+                { word: "muscle", phonetic: "/ˈmʌsl/", translation: "Muskel", tip: "Das 'c' ist stumm! Sprich: MUS-sel." },
+                { word: "interesting", phonetic: "/ˈɪntrəstɪŋ/", translation: "interessant", tip: "Nur 3 Silben: IN-tres-ting. Das 'e' wird verschluckt." },
+                { word: "Wednesday", phonetic: "/ˈwenzdeɪ/", translation: "Mittwoch", tip: "Das 'd' in der Mitte ist stumm: WENZ-day." },
+                { word: "February", phonetic: "/ˈfebruəri/", translation: "Februar", tip: "Das erste 'r' wird oft weggelassen: FEB-yu-ary." },
+                { word: "library", phonetic: "/ˈlaɪbrəri/", translation: "Bibliothek", tip: "Achte auf beide 'r': LI-bra-ry, nicht 'libary'." },
+                { word: "comfortable", phonetic: "/ˈkʌmftəbl/", translation: "bequem", tip: "Nur 3 Silben: COMF-ter-ble. Das 'or' wird verschluckt." },
+                { word: "debt", phonetic: "/det/", translation: "Schuld", tip: "Das 'b' ist stumm! Sprich wie 'det'." },
+                { word: "doubt", phonetic: "/daʊt/", translation: "Zweifel", tip: "Das 'b' ist stumm! Sprich: DOWT." },
+                { word: "receipt", phonetic: "/rɪˈsiːt/", translation: "Quittung", tip: "Das 'p' ist stumm! Sprich: ri-SEET." },
+                { word: "salmon", phonetic: "/ˈsæmən/", translation: "Lachs", tip: "Das 'l' ist stumm! Sprich: SAM-un." },
+                { word: "almond", phonetic: "/ˈɑːmənd/", translation: "Mandel", tip: "Das 'l' ist stumm! Sprich: AH-mund." },
+                { word: "comb", phonetic: "/kəʊm/", translation: "Kamm", tip: "Das 'b' ist stumm! Sprich: KOHM." },
+                { word: "bomb", phonetic: "/bɒm/", translation: "Bombe", tip: "Das 'b' am Ende ist stumm! Sprich: BOM." },
+                { word: "knight", phonetic: "/naɪt/", translation: "Ritter", tip: "Das 'k' und 'gh' sind stumm! Sprich wie 'night'." },
+                { word: "psychology", phonetic: "/saɪˈkɒlədʒi/", translation: "Psychologie", tip: "Das 'p' ist stumm! Beginnt mit /s/: sy-KOL-o-jee." },
+                { word: "pneumonia", phonetic: "/njuːˈməʊniə/", translation: "Lungenentzündung", tip: "Das 'p' ist stumm! Sprich: new-MOH-nee-uh." },
+                { word: "honest", phonetic: "/ˈɒnɪst/", translation: "ehrlich", tip: "Das 'h' ist stumm! Sprich: ON-ist." },
+                { word: "hour", phonetic: "/ˈaʊə/", translation: "Stunde", tip: "Das 'h' ist stumm! Sprich: OW-er." },
+                { word: "genre", phonetic: "/ˈʒɒnrə/", translation: "Genre", tip: "Französisch! Das 'g' wird /ʒ/ wie in 'measure': ZHON-ruh." },
+                { word: "chaos", phonetic: "/ˈkeɪɒs/", translation: "Chaos", tip: "Das 'ch' wird /k/: KAY-os. Griechischer Ursprung." }
+            ],
+            academic: [
+                { word: "hypothesis", phonetic: "/haɪˈpɒθəsɪs/", translation: "Hypothese", tip: "Betonung auf zweiter Silbe: hy-POTH-e-sis." },
+                { word: "phenomenon", phonetic: "/fəˈnɒmɪnən/", translation: "Phänomen", tip: "Betonung auf zweiter Silbe: phe-NOM-e-non." },
+                { word: "analysis", phonetic: "/əˈnæləsɪs/", translation: "Analyse", tip: "Betonung auf zweiter Silbe: a-NAL-y-sis." },
+                { word: "development", phonetic: "/dɪˈveləpmənt/", translation: "Entwicklung", tip: "Betonung auf zweiter Silbe: de-VEL-op-ment." },
+                { word: "environment", phonetic: "/ɪnˈvaɪrənmənt/", translation: "Umwelt", tip: "Betonung auf zweiter Silbe: en-VI-ron-ment." },
+                { word: "opportunity", phonetic: "/ˌɒpəˈtjuːnəti/", translation: "Gelegenheit", tip: "Betonung auf dritter Silbe: op-por-TU-ni-ty." },
+                { word: "significant", phonetic: "/sɪɡˈnɪfɪkənt/", translation: "bedeutsam", tip: "Betonung auf zweiter Silbe: sig-NIF-i-cant." },
+                { word: "technology", phonetic: "/tekˈnɒlədʒi/", translation: "Technologie", tip: "Betonung auf zweiter Silbe: tech-NOL-o-gy." },
+                { word: "necessary", phonetic: "/ˈnesəsəri/", translation: "notwendig", tip: "Betonung am Anfang: NEC-es-sa-ry. Nicht ne-CESS-ary!" },
+                { word: "appropriate", phonetic: "/əˈprəʊpriət/", translation: "angemessen", tip: "Betonung auf zweiter Silbe: ap-PRO-pri-ate." },
+                { word: "deteriorate", phonetic: "/dɪˈtɪəriəreɪt/", translation: "verschlechtern", tip: "Betonung auf zweiter Silbe: de-TER-i-o-rate. 5 Silben!" },
+                { word: "simultaneously", phonetic: "/ˌsɪmlˈteɪniəsli/", translation: "gleichzeitig", tip: "Betonung auf dritter Silbe: sim-ul-TAY-nee-us-lee." },
+                { word: "characteristic", phonetic: "/ˌkærəktəˈrɪstɪk/", translation: "charakteristisch", tip: "Betonung auf vierter Silbe: kar-ak-ter-IS-tik." },
+                { word: "differentiate", phonetic: "/ˌdɪfəˈrenʃieɪt/", translation: "unterscheiden", tip: "Betonung auf dritter Silbe: dif-er-EN-shee-ate." },
+                { word: "bibliography", phonetic: "/ˌbɪbliˈɒɡrəfi/", translation: "Bibliografie", tip: "Betonung auf dritter Silbe: bib-lee-OG-ra-fee." },
+                { word: "archaeological", phonetic: "/ˌɑːkiəˈlɒdʒɪkl/", translation: "archäologisch", tip: "Betonung auf vierter Silbe: ar-kee-o-LOJ-i-kul." },
+                { word: "entrepreneurial", phonetic: "/ˌɒntrəprəˈnɜːriəl/", translation: "unternehmerisch", tip: "Betonung auf vierter Silbe: on-truh-pruh-NUR-ee-ul." },
+                { word: "miscellaneous", phonetic: "/ˌmɪsəˈleɪniəs/", translation: "verschiedenartig", tip: "Betonung auf dritter Silbe: mis-uh-LAY-nee-us." },
+                { word: "pronunciation", phonetic: "/prəˌnʌnsiˈeɪʃn/", translation: "Aussprache", tip: "Betonung auf vierter Silbe: pro-nun-see-AY-shun. Nicht 'pronounciation'!" },
+                { word: "statistics", phonetic: "/stəˈtɪstɪks/", translation: "Statistik", tip: "Betonung auf zweiter Silbe: stuh-TIS-tiks." },
+                { word: "hierarchy", phonetic: "/ˈhaɪərɑːki/", translation: "Hierarchie", tip: "Betonung am Anfang: HI-er-ar-kee. 4 Silben." },
+                { word: "contemporary", phonetic: "/kənˈtemprəri/", translation: "zeitgenössisch", tip: "Betonung auf zweiter Silbe: kon-TEM-pra-ree." },
+                { word: "infrastructure", phonetic: "/ˈɪnfrəstrʌktʃə/", translation: "Infrastruktur", tip: "Betonung am Anfang: IN-fra-struk-chur." },
+                { word: "consequently", phonetic: "/ˈkɒnsɪkwəntli/", translation: "folglich", tip: "Betonung am Anfang: KON-si-kwent-lee." },
+                { word: "unequivocally", phonetic: "/ˌʌnɪˈkwɪvəkəli/", translation: "eindeutig", tip: "Betonung auf dritter Silbe: un-i-KWIV-uh-kuh-lee." }
+            ],
+            everyday: [
+                { word: "breakfast", phonetic: "/ˈbrekfəst/", translation: "Frühstück", tip: "Zwei Silben: BREK-fast. Das 'a' wird zu einem schwachen Schwa /ə/." },
+                { word: "chocolate", phonetic: "/ˈtʃɒklət/", translation: "Schokolade", tip: "Nur zwei Silben: CHOC-late. Das 'o' in der Mitte wird verschluckt." },
+                { word: "different", phonetic: "/ˈdɪfrənt/", translation: "anders", tip: "Zwei Silben: DIF-rent. Das 'e' wird verschluckt." },
+                { word: "favourite", phonetic: "/ˈfeɪvərɪt/", translation: "Lieblings-", tip: "Drei Silben: FAV-our-ite. Nicht 'fav-or-ite' mit vier Silben." },
+                { word: "restaurant", phonetic: "/ˈrestrɒnt/", translation: "Restaurant", tip: "Zwei Silben: REST-ront. Das 'au' wird verschluckt." },
+                { word: "temperature", phonetic: "/ˈtemprətʃə/", translation: "Temperatur", tip: "Drei Silben: TEM-pra-ture. Das 'e' wird verschluckt." },
+                { word: "usually", phonetic: "/ˈjuːʒuəli/", translation: "normalerweise", tip: "Das 's' wird zu /ʒ/ wie in 'measure': YOO-zhoo-a-lee." },
+                { word: "actually", phonetic: "/ˈæktʃuəli/", translation: "tatsächlich", tip: "Das 't' wird zu /tʃ/: AK-choo-a-lee." },
+                { word: "literally", phonetic: "/ˈlɪtərəli/", translation: "buchstäblich", tip: "Vier Silben: LIT-er-al-ly. Betonung auf erster Silbe." },
+                { word: "probably", phonetic: "/ˈprɒbəbli/", translation: "wahrscheinlich", tip: "Drei Silben: PROB-ab-ly. Oft wird es zu 'probly' verkürzt." },
+                { word: "beautiful", phonetic: "/ˈbjuːtɪfl/", translation: "schön", tip: "Drei Silben: BYOO-ti-ful. Beginnt mit /bj/ wie 'bureau'." },
+                { word: "vegetable", phonetic: "/ˈvedʒtəbl/", translation: "Gemüse", tip: "Nur 3 Silben: VEJ-ta-ble. Das erste 'e' wird verschluckt." },
+                { word: "comfortable", phonetic: "/ˈkʌmftəbl/", translation: "bequem", tip: "Nur 3 Silben: KUMF-ter-ble. 'For' wird verschluckt." },
+                { word: "separate", phonetic: "/ˈseprət/", translation: "getrennt (Adj.)", tip: "Als Adjektiv nur 2 Silben: SEP-rit. Als Verb: SEP-a-rate." },
+                { word: "camera", phonetic: "/ˈkæmrə/", translation: "Kamera", tip: "Nur 2 Silben: KAM-ra. Das 'e' wird verschluckt." },
+                { word: "family", phonetic: "/ˈfæmli/", translation: "Familie", tip: "Nur 2 Silben: FAM-lee. Das 'i' wird verschluckt." },
+                { word: "evening", phonetic: "/ˈiːvnɪŋ/", translation: "Abend", tip: "Nur 2 Silben: EEV-ning. Das 'e' in der Mitte entfällt." },
+                { word: "every", phonetic: "/ˈevri/", translation: "jede/r/s", tip: "Nur 2 Silben: EV-ree. Das zweite 'e' wird verschluckt." },
+                { word: "business", phonetic: "/ˈbɪznəs/", translation: "Geschäft", tip: "Nur 2 Silben: BIZ-nis. Das 'i' und 'u' werden zu Schwa." },
+                { word: "kitchen", phonetic: "/ˈkɪtʃɪn/", translation: "Küche", tip: "Zwei Silben: KITCH-in. Das 't' wird zu /tʃ/." },
+                { word: "cupboard", phonetic: "/ˈkʌbəd/", translation: "Schrank", tip: "Zwei Silben: KUB-berd. Das 'p' ist stumm!" },
+                { word: "stomach", phonetic: "/ˈstʌmək/", translation: "Magen", tip: "Zwei Silben: STUM-uk. Das 'ch' wird /k/." },
+                { word: "answer", phonetic: "/ˈɑːnsə/", translation: "Antwort", tip: "Zwei Silben: AN-ser. Das 'w' ist stumm!" },
+                { word: "foreign", phonetic: "/ˈfɒrən/", translation: "ausländisch", tip: "Zwei Silben: FOR-in. Das 'g' ist stumm!" },
+                { word: "knowledge", phonetic: "/ˈnɒlɪdʒ/", translation: "Wissen", tip: "Zwei Silben: NOL-ij. Das 'k' und 'w' sind stumm!" }
+            ]
+        };
+
+        // Minimal pairs for listening exercises
+        const minimalPairs = [
+            {
+                words: [
+                    { word: "ship", phonetic: "/ʃɪp/" },
+                    { word: "sheep", phonetic: "/ʃiːp/" }
+                ],
+                tip: "/ɪ/ ist kurz (ship), /iː/ ist lang (sheep). Achte auf die Länge des Vokals."
+            },
+            {
+                words: [
+                    { word: "bed", phonetic: "/bed/" },
+                    { word: "bad", phonetic: "/bæd/" }
+                ],
+                tip: "/e/ ist geschlossener (bed), /æ/ ist offener wie ein kurzes 'ä' (bad)."
+            },
+            {
+                words: [
+                    { word: "cat", phonetic: "/kæt/" },
+                    { word: "cut", phonetic: "/kʌt/" }
+                ],
+                tip: "/æ/ ist vorne im Mund (cat), /ʌ/ ist mittig und entspannt (cut)."
+            },
+            {
+                words: [
+                    { word: "live", phonetic: "/lɪv/" },
+                    { word: "leave", phonetic: "/liːv/" }
+                ],
+                tip: "Kurzes /ɪ/ in 'live' vs. langes /iː/ in 'leave'."
+            },
+            {
+                words: [
+                    { word: "full", phonetic: "/fʊl/" },
+                    { word: "fool", phonetic: "/fuːl/" }
+                ],
+                tip: "Kurzes /ʊ/ in 'full' vs. langes /uː/ in 'fool'."
+            },
+            {
+                words: [
+                    { word: "think", phonetic: "/θɪŋk/" },
+                    { word: "sink", phonetic: "/sɪŋk/" }
+                ],
+                tip: "/θ/ mit Zunge zwischen Zähnen (think) vs. /s/ mit Zunge hinter Zähnen (sink)."
+            },
+            {
+                words: [
+                    { word: "then", phonetic: "/ðen/" },
+                    { word: "den", phonetic: "/den/" }
+                ],
+                tip: "Stimmhaftes /ð/ (then) vs. /d/ (den). Bei /ð/ liegt die Zunge zwischen den Zähnen."
+            },
+            {
+                words: [
+                    { word: "vest", phonetic: "/vest/" },
+                    { word: "west", phonetic: "/west/" }
+                ],
+                tip: "/v/ mit Unterlippe an Oberzähnen vs. /w/ mit gerundeten Lippen."
+            },
+            {
+                words: [
+                    { word: "light", phonetic: "/laɪt/" },
+                    { word: "right", phonetic: "/raɪt/" }
+                ],
+                tip: "/l/ mit Zungenspitze am Gaumen vs. /r/ mit Zunge nach hinten gebogen."
+            },
+            {
+                words: [
+                    { word: "beer", phonetic: "/bɪə/" },
+                    { word: "bear", phonetic: "/beə/" }
+                ],
+                tip: "/ɪə/ in 'beer' beginnt höher, /eə/ in 'bear' beginnt mittiger."
+            },
+            {
+                words: [
+                    { word: "hit", phonetic: "/hɪt/" },
+                    { word: "heat", phonetic: "/hiːt/" }
+                ],
+                tip: "Kurzes /ɪ/ in 'hit' vs. langes /iː/ in 'heat'. Der Mund ist bei /iː/ breiter."
+            },
+            {
+                words: [
+                    { word: "pull", phonetic: "/pʊl/" },
+                    { word: "pool", phonetic: "/puːl/" }
+                ],
+                tip: "Kurzes /ʊ/ in 'pull' vs. langes /uː/ in 'pool'. Die Lippen sind bei /uː/ runder."
+            },
+            {
+                words: [
+                    { word: "hat", phonetic: "/hæt/" },
+                    { word: "hut", phonetic: "/hʌt/" }
+                ],
+                tip: "/æ/ ist vorne und offen (hat), /ʌ/ ist zentral und entspannt (hut)."
+            },
+            {
+                words: [
+                    { word: "pen", phonetic: "/pen/" },
+                    { word: "pan", phonetic: "/pæn/" }
+                ],
+                tip: "/e/ ist mittelhoch (pen), /æ/ ist tiefer und offener (pan)."
+            },
+            {
+                words: [
+                    { word: "three", phonetic: "/θriː/" },
+                    { word: "free", phonetic: "/friː/" }
+                ],
+                tip: "/θ/ mit Zunge zwischen Zähnen (three) vs. /f/ mit Unterlippe an Oberzähnen (free)."
+            },
+            {
+                words: [
+                    { word: "mouth", phonetic: "/maʊθ/" },
+                    { word: "mouse", phonetic: "/maʊs/" }
+                ],
+                tip: "Stimmloser 'th'-Laut /θ/ (mouth) vs. /s/ (mouse). Zunge zwischen Zähne für /θ/."
+            },
+            {
+                words: [
+                    { word: "path", phonetic: "/pɑːθ/" },
+                    { word: "pass", phonetic: "/pɑːs/" }
+                ],
+                tip: "/θ/ mit Zunge zwischen Zähnen (path) vs. /s/ hinter Zähnen (pass)."
+            },
+            {
+                words: [
+                    { word: "vine", phonetic: "/vaɪn/" },
+                    { word: "wine", phonetic: "/waɪn/" }
+                ],
+                tip: "/v/ mit Unterlippe an Oberzähnen vs. /w/ mit gerundeten Lippen ohne Kontakt."
+            },
+            {
+                words: [
+                    { word: "boat", phonetic: "/bəʊt/" },
+                    { word: "bought", phonetic: "/bɔːt/" }
+                ],
+                tip: "Diphthong /əʊ/ gleitet (boat) vs. Monophthong /ɔː/ bleibt gleich (bought)."
+            },
+            {
+                words: [
+                    { word: "coat", phonetic: "/kəʊt/" },
+                    { word: "caught", phonetic: "/kɔːt/" }
+                ],
+                tip: "/əʊ/ mit Lippenbewegung (coat) vs. /ɔː/ mit gleichbleibenden Lippen (caught)."
+            },
+            {
+                words: [
+                    { word: "wet", phonetic: "/wet/" },
+                    { word: "wait", phonetic: "/weɪt/" }
+                ],
+                tip: "Kurzes /e/ in 'wet' vs. Diphthong /eɪ/ in 'wait', der nach /ɪ/ gleitet."
+            },
+            {
+                words: [
+                    { word: "said", phonetic: "/sed/" },
+                    { word: "sad", phonetic: "/sæd/" }
+                ],
+                tip: "/e/ ist geschlossener (said), /æ/ ist offener (sad)."
+            },
+            {
+                words: [
+                    { word: "man", phonetic: "/mæn/" },
+                    { word: "men", phonetic: "/men/" }
+                ],
+                tip: "/æ/ ist offener und weiter vorne (man), /e/ ist geschlossener (men)."
+            },
+            {
+                words: [
+                    { word: "fan", phonetic: "/fæn/" },
+                    { word: "fun", phonetic: "/fʌn/" }
+                ],
+                tip: "/æ/ ist vorne (fan), /ʌ/ ist zentral und entspannter (fun)."
+            },
+            {
+                words: [
+                    { word: "luck", phonetic: "/lʌk/" },
+                    { word: "look", phonetic: "/lʊk/" }
+                ],
+                tip: "/ʌ/ ist zentral und offen (luck), /ʊ/ ist hinten und gerundet (look)."
+            },
+            {
+                words: [
+                    { word: "calm", phonetic: "/kɑːm/" },
+                    { word: "come", phonetic: "/kʌm/" }
+                ],
+                tip: "/ɑː/ ist lang und hinten (calm), /ʌ/ ist kurz und zentral (come)."
+            },
+            {
+                words: [
+                    { word: "work", phonetic: "/wɜːk/" },
+                    { word: "walk", phonetic: "/wɔːk/" }
+                ],
+                tip: "/ɜː/ ist zentral (work), /ɔː/ ist hinten und gerundet (walk)."
+            },
+            {
+                words: [
+                    { word: "word", phonetic: "/wɜːd/" },
+                    { word: "ward", phonetic: "/wɔːd/" }
+                ],
+                tip: "/ɜː/ ist zentral wie in 'bird' (word), /ɔː/ ist hinten (ward)."
+            },
+            {
+                words: [
+                    { word: "cheap", phonetic: "/tʃiːp/" },
+                    { word: "jeep", phonetic: "/dʒiːp/" }
+                ],
+                tip: "/tʃ/ ist stimmlos (cheap), /dʒ/ ist stimmhaft (jeep). Fühle die Vibration!"
+            },
+            {
+                words: [
+                    { word: "chin", phonetic: "/tʃɪn/" },
+                    { word: "gin", phonetic: "/dʒɪn/" }
+                ],
+                tip: "/tʃ/ ohne Stimmbandschwingung (chin), /dʒ/ mit Vibration (gin)."
+            }
+        ];
+
+        // State
+        let currentWordIndex = 0;
+        let currentCategory = 'difficult_sounds';
+        let correctCount = 0;
+        let isRecording = false;
+        let recognition = null;
+        let synthesis = window.speechSynthesis;
+
+        // Minimal pairs state
+        let currentPairIndex = 0;
+        let pairsScore = 0;
+        let targetWordIndex = 0;
+        let hasPlayed = false;
+
+        // DOM Elements
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const practiceTab = document.getElementById('practice-tab');
+        const pairsTab = document.getElementById('pairs-tab');
+
+        // Practice elements
+        const wordMain = document.getElementById('current-word');
+        const wordPhonetic = document.getElementById('current-phonetic');
+        const wordTranslation = document.getElementById('current-translation');
+        const tipText = document.getElementById('tip-text');
+        const btnListen = document.getElementById('btn-listen');
+        const btnRecord = document.getElementById('btn-record');
+        const recordText = document.getElementById('record-text');
+        const feedback = document.getElementById('feedback');
+        const feedbackIcon = document.getElementById('feedback-icon');
+        const feedbackText = document.getElementById('feedback-text');
+        const feedbackDetail = document.getElementById('feedback-detail');
+        const progressFill = document.getElementById('progress-fill');
+        const statCurrent = document.getElementById('stat-current');
+        const statTotal = document.getElementById('stat-total');
+        const statCorrect = document.getElementById('stat-correct');
+        const categorySelect = document.getElementById('category-select');
+        const speedSelect = document.getElementById('speed-select');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+
+        // Pairs elements
+        const pairContainer = document.getElementById('pair-container');
+        const pairWords = pairContainer.querySelectorAll('.pair-word');
+        const btnPlayPair = document.getElementById('btn-play-pair');
+        const pairsFeedback = document.getElementById('pairs-feedback');
+        const pairsFeedbackIcon = document.getElementById('pairs-feedback-icon');
+        const pairsFeedbackText = document.getElementById('pairs-feedback-text');
+        const pairsTipText = document.getElementById('pairs-tip-text');
+        const listenPrompt = document.getElementById('listen-prompt');
+        const pairsCurrent = document.getElementById('pairs-current');
+        const pairsTotal = document.getElementById('pairs-total');
+        const pairsScoreEl = document.getElementById('pairs-score');
+        const btnPairsPrev = document.getElementById('btn-pairs-prev');
+        const btnPairsNext = document.getElementById('btn-pairs-next');
+
+        // Initialize Speech Recognition
+        function initRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+            } else if ('SpeechRecognition' in window) {
+                recognition = new SpeechRecognition();
+            } else {
+                btnRecord.disabled = true;
+                btnRecord.title = 'Spracherkennung nicht unterstützt';
+                return;
+            }
+
+            recognition.lang = 'en-GB';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 5;
+
+            recognition.onresult = (event) => {
+                const results = event.results[0];
+                const transcript = results[0].transcript.toLowerCase().trim();
+                const alternatives = [];
+
+                for (let i = 0; i < results.length; i++) {
+                    alternatives.push(results[i].transcript.toLowerCase().trim());
+                }
+
+                evaluatePronunciation(transcript, alternatives);
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Recognition error:', event.error);
+                stopRecording();
+                showFeedback('error', 'Nicht erkannt', 'Bitte versuche es noch einmal.');
+            };
+
+            recognition.onend = () => {
+                stopRecording();
+            };
+        }
+
+        // Text-to-Speech
+        function speak(text, rate = 1) {
+            synthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-GB';
+            utterance.rate = rate;
+
+            // Try to find a British English voice
+            const voices = synthesis.getVoices();
+            const britishVoice = voices.find(v => v.lang === 'en-GB') ||
+                                 voices.find(v => v.lang.startsWith('en'));
+            if (britishVoice) {
+                utterance.voice = britishVoice;
+            }
+
+            synthesis.speak(utterance);
+        }
+
+        // Recording
+        function startRecording() {
+            if (!recognition) return;
+
+            isRecording = true;
+            btnRecord.classList.add('recording');
+            recordText.textContent = 'Aufnahme...';
+            feedback.classList.remove('show');
+
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error('Could not start recognition:', e);
+                stopRecording();
+            }
+        }
+
+        function stopRecording() {
+            isRecording = false;
+            btnRecord.classList.remove('recording');
+            recordText.textContent = 'Aufnehmen';
+        }
+
+        // Evaluate pronunciation
+        function evaluatePronunciation(transcript, alternatives) {
+            const currentWord = wordLists[currentCategory][currentWordIndex].word.toLowerCase();
+
+            // Check exact match or close alternatives
+            const isExactMatch = transcript === currentWord;
+            const isInAlternatives = alternatives.some(alt => alt === currentWord);
+            const isSimilar = alternatives.some(alt => {
+                const distance = levenshteinDistance(alt, currentWord);
+                return distance <= 2;
+            });
+
+            if (isExactMatch || isInAlternatives) {
+                correctCount++;
+                statCorrect.textContent = correctCount;
+                showFeedback('success', 'Ausgezeichnet!', `Erkannt: "${transcript}"`);
+            } else if (isSimilar) {
+                showFeedback('partial', 'Fast richtig!', `Erkannt: "${transcript}" - Versuche es noch einmal.`);
+            } else {
+                showFeedback('error', 'Nicht ganz', `Erkannt: "${transcript}" - Höre dir das Wort noch einmal an.`);
+            }
+        }
+
+        // Levenshtein distance for fuzzy matching
+        function levenshteinDistance(a, b) {
+            const matrix = [];
+            for (let i = 0; i <= b.length; i++) {
+                matrix[i] = [i];
+            }
+            for (let j = 0; j <= a.length; j++) {
+                matrix[0][j] = j;
+            }
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            matrix[i][j - 1] + 1,
+                            matrix[i - 1][j] + 1
+                        );
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        // Show feedback
+        function showFeedback(type, text, detail) {
+            feedback.className = `feedback show ${type}`;
+            feedbackIcon.textContent = type === 'success' ? '✓' : type === 'partial' ? '~' : '✗';
+            feedbackText.textContent = text;
+            feedbackDetail.textContent = detail;
+        }
+
+        // Update word display
+        function updateWordDisplay() {
+            const words = wordLists[currentCategory];
+            const word = words[currentWordIndex];
+
+            wordMain.textContent = word.word;
+            wordPhonetic.textContent = word.phonetic;
+            wordTranslation.textContent = word.translation;
+            tipText.textContent = word.tip;
+
+            statCurrent.textContent = currentWordIndex + 1;
+            statTotal.textContent = words.length;
+            progressFill.style.width = `${((currentWordIndex + 1) / words.length) * 100}%`;
+
+            feedback.classList.remove('show');
+        }
+
+        // Minimal Pairs
+        function updatePairDisplay() {
+            const pair = minimalPairs[currentPairIndex];
+
+            document.getElementById('pair-word-0').textContent = pair.words[0].word;
+            document.getElementById('pair-phonetic-0').textContent = pair.words[0].phonetic;
+            document.getElementById('pair-word-1').textContent = pair.words[1].word;
+            document.getElementById('pair-phonetic-1').textContent = pair.words[1].phonetic;
+            pairsTipText.textContent = pair.tip;
+
+            pairsCurrent.textContent = currentPairIndex + 1;
+            pairsTotal.textContent = minimalPairs.length;
+
+            // Reset state
+            pairWords.forEach(pw => {
+                pw.classList.remove('selected', 'correct', 'wrong');
+                pw.style.pointerEvents = 'none';
+            });
+            pairsFeedback.classList.remove('show');
+            hasPlayed = false;
+            listenPrompt.textContent = 'Klicke auf "Anhören" und wähle das gehörte Wort';
+        }
+
+        function playPairWord() {
+            targetWordIndex = Math.random() < 0.5 ? 0 : 1;
+            const pair = minimalPairs[currentPairIndex];
+            speak(pair.words[targetWordIndex].word, 0.9);
+
+            hasPlayed = true;
+            listenPrompt.textContent = 'Welches Wort hast du gehört?';
+            pairWords.forEach(pw => {
+                pw.style.pointerEvents = 'auto';
+            });
+        }
+
+        function selectPairWord(index) {
+            if (!hasPlayed) return;
+
+            pairWords.forEach(pw => pw.style.pointerEvents = 'none');
+
+            if (index === targetWordIndex) {
+                pairWords[index].classList.add('correct');
+                pairsScore++;
+                pairsScoreEl.textContent = pairsScore;
+                showPairsFeedback('success', 'Richtig!');
+            } else {
+                pairWords[index].classList.add('wrong');
+                pairWords[targetWordIndex].classList.add('correct');
+                showPairsFeedback('error', `Das war "${minimalPairs[currentPairIndex].words[targetWordIndex].word}"`);
+            }
+        }
+
+        function showPairsFeedback(type, text) {
+            pairsFeedback.className = `feedback show ${type}`;
+            pairsFeedbackIcon.textContent = type === 'success' ? '✓' : '✗';
+            pairsFeedbackText.textContent = text;
+        }
+
+        // Event Listeners
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                if (btn.dataset.tab === 'practice') {
+                    practiceTab.classList.remove('hidden');
+                    pairsTab.classList.add('hidden');
+                } else {
+                    practiceTab.classList.add('hidden');
+                    pairsTab.classList.remove('hidden');
+                    updatePairDisplay();
+                }
+            });
+        });
+
+        btnListen.addEventListener('click', () => {
+            const rate = parseFloat(speedSelect.value);
+            speak(wordLists[currentCategory][currentWordIndex].word, rate);
+        });
+
+        btnRecord.addEventListener('click', () => {
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                startRecording();
+            }
+        });
+
+        categorySelect.addEventListener('change', () => {
+            currentCategory = categorySelect.value;
+            currentWordIndex = 0;
+            correctCount = 0;
+            statCorrect.textContent = 0;
+            updateWordDisplay();
+        });
+
+        btnPrev.addEventListener('click', () => {
+            if (currentWordIndex > 0) {
+                currentWordIndex--;
+                updateWordDisplay();
+            }
+        });
+
+        btnNext.addEventListener('click', () => {
+            const words = wordLists[currentCategory];
+            if (currentWordIndex < words.length - 1) {
+                currentWordIndex++;
+                updateWordDisplay();
+            }
+        });
+
+        // Minimal pairs listeners
+        btnPlayPair.addEventListener('click', playPairWord);
+
+        pairWords.forEach((pw, index) => {
+            pw.addEventListener('click', () => selectPairWord(index));
+        });
+
+        btnPairsPrev.addEventListener('click', () => {
+            if (currentPairIndex > 0) {
+                currentPairIndex--;
+                updatePairDisplay();
+            }
+        });
+
+        btnPairsNext.addEventListener('click', () => {
+            if (currentPairIndex < minimalPairs.length - 1) {
+                currentPairIndex++;
+                updatePairDisplay();
+            }
+        });
+
+        // Initialize
+        window.speechSynthesis.onvoiceschanged = () => {
+            // Voices loaded
+        };
+
+        initRecognition();
+        updateWordDisplay();
+    </script>
+</body>
+</html>
